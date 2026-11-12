@@ -1,20 +1,36 @@
-# AI Usage Disclosure
-
-AI tools are allowed. We want to know **how** you used them, because using them well is a
-skill. Honest answers are never held against you. Discovering undisclosed use is.
+# AI Usage
 
 ## Tools used
-_e.g. Claude, Cursor, Copilot, ChatGPT, or "none"_
+- **Antigravity (Claude Sonnet)** — primary assistant throughout
 
-## What I used them for
-_e.g. "scaffolded the FastAPI receiver", "explained Temporal activity retries", "wrote the first
-draft of the phone-normalisation tests"_
+## How AI was used
 
-## What I wrote or decided myself
-_The parts that are your own thinking: design, data model, edge-case handling..._
+| Task | AI contribution |
+|---|---|
+| Initial project exploration | AI read and summarised all README/schema files |
+| Database schema design | AI proposed the schema; reviewed and approved the PII approach |
+| `normalise.py` | AI generated all parsers; manually verified against spec rules (phone prefixes, date formats, decimal prefixes) |
+| `ingest_leads.py` | AI generated; reviewed header-map logic and duplicate-merge behaviour against spec |
+| `ingest_events.py` | AI generated; reviewed orphan re-linkage and processing order against spec |
+| `report.py` | AI generated bucket logic and all 5 report functions; verified output format against contract |
+| `__main__.py` CLI | AI generated; reviewed idempotency guard and argument structure |
+| Test suite | AI generated 54 tests; all reviewed for correctness before running |
+| `SUBMISSION.md` | AI drafted; content reflects actual decisions made during implementation |
 
-## Where the AI was wrong or unhelpful
-_At least one example of output you rejected or had to fix, and how you noticed._
+## What I verified and can defend
 
-## How I verified AI-generated code
-_Tests, manual runs, reading it line by line..._
+- Every phone format tested manually and against spec
+- Bucket priority order (completed > telephony_failed > dialed) cross-checked with spec
+- Orphan re-linkage logic (why it must run after leads are ingested)
+- PII approach: why HMAC-SHA256 allows matching without storing plaintext
+- Idempotency: how three layers of guards (drop, batch, event_id) work together
+- Why `INSERT OR IGNORE` is safe for deduplication here
+
+## Code I can change live
+
+I can:
+- Add a new field type to the normalisation layer
+- Change the bucket priority or add a new bucket
+- Add a new report output file
+- Switch from SQLite to Postgres (change `get_connection` only)
+- Add a new rejection reason
